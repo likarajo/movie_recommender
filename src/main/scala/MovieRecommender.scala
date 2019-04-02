@@ -16,7 +16,7 @@ import org.apache.spark.sql.SparkSession
 case class Rating(userId: Int, movieId: Int, rating: Float, timestamp: Long)
 case class Movie(mId: Int, movieName: String, genre: String)
 
-object Recommender {
+object MovieRecommender {
 
   def main(args: Array[String]) {
 
@@ -44,8 +44,8 @@ object Recommender {
     val outFile = new BufferedWriter(new FileWriter(filename))
 
     // Specify data file(s)
-    val ratingsFile = "movielens/ratings.dat"
-    val moviesFile = "movielens/movies.dat"
+    val ratingsFile = "data/movielens/ratings.dat"
+    val moviesFile = "data/movielens/movies.dat"
 
     import spark.implicits._
 
