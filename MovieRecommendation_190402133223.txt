@@ -1,0 +1,85 @@
+Data read completed
++------+-------+--------------------+--------------------+------+---------+
+|userId|movieId|           movieName|               genre|rating|timestamp|
++------+-------+--------------------+--------------------+------+---------+
+|     1|   1193|One Flew Over the...|               Drama|   5.0|978300760|
+|     1|    661|James and the Gia...|Animation|Childre...|   3.0|978302109|
+|     1|    914| My Fair Lady (1964)|     Musical|Romance|   3.0|978301968|
+|     1|   3408|Erin Brockovich (...|               Drama|   4.0|978300275|
+|     1|   2355|Bug's Life, A (1998)|Animation|Childre...|   5.0|978824291|
+|     1|   1197|Princess Bride, T...|Action|Adventure|...|   3.0|978302268|
+|     1|   1287|      Ben-Hur (1959)|Action|Adventure|...|   5.0|978302039|
+|     1|   2804|Christmas Story, ...|        Comedy|Drama|   5.0|978300719|
+|     1|    594|Snow White and th...|Animation|Childre...|   4.0|978302268|
+|     1|    919|Wizard of Oz, The...|Adventure|Childre...|   4.0|978301368|
+|     1|    595|Beauty and the Be...|Animation|Childre...|   5.0|978824268|
+|     1|    938|         Gigi (1958)|             Musical|   4.0|978301752|
+|     1|   2398|Miracle on 34th S...|               Drama|   4.0|978302281|
+|     1|   2918|Ferris Bueller's ...|              Comedy|   4.0|978302124|
+|     1|   1035|Sound of Music, T...|             Musical|   5.0|978301753|
+|     1|   2791|    Airplane! (1980)|              Comedy|   4.0|978302188|
+|     1|   2687|       Tarzan (1999)|Animation|Children's|   3.0|978824268|
+|     1|   2018|        Bambi (1942)|Animation|Children's|   4.0|978301777|
+|     1|   3105|   Awakenings (1990)|               Drama|   5.0|978301713|
+|     1|   2797|          Big (1988)|      Comedy|Fantasy|   4.0|978302039|
++------+-------+--------------------+--------------------+------+---------+
+only showing top 20 rows
+
+Training model with train set...
+Model trained
+Predicting using test set...
++------+-------+--------------------+--------------------+------+----------+----------+
+|userId|movieId|           movieName|               genre|rating| timestamp|prediction|
++------+-------+--------------------+--------------------+------+----------+----------+
+|  3829|    148|Awfully Big Adven...|               Drama|   2.0| 965940170| 2.4443445|
+|  3053|    148|Awfully Big Adven...|               Drama|   3.0| 970170090| 2.9131432|
+|  3151|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   5.0| 968916009| 3.9492857|
+|  5047|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   3.0| 966134684| 2.3785863|
+|  2777|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   3.0| 973125221| 3.1646364|
+|  5249|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   3.0| 961602410| 2.5957546|
+|   524|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   3.0| 976172772| 2.5447707|
+|  3808|    463|Guilty as Sin (1993)|Crime|Drama|Thriller|   3.0| 965972261| 2.5831876|
+|  1088|    471|Hudsucker Proxy, ...|      Comedy|Romance|   4.0|1038181227| 3.3681476|
+|  5300|    471|Hudsucker Proxy, ...|      Comedy|Romance|   4.0| 960976999|  4.351215|
+|   392|    471|Hudsucker Proxy, ...|      Comedy|Romance|   4.0| 976304518|  3.688735|
+|  1395|    471|Hudsucker Proxy, ...|      Comedy|Romance|   5.0| 975005467|  4.345487|
+|  5614|    471|Hudsucker Proxy, ...|      Comedy|Romance|   5.0| 959205286| 3.9578233|
+|  3561|    471|Hudsucker Proxy, ...|      Comedy|Romance|   4.0| 967059980|  4.041216|
+|  1496|    471|Hudsucker Proxy, ...|      Comedy|Romance|   2.0| 974753578|  3.314795|
+|  5880|    471|Hudsucker Proxy, ...|      Comedy|Romance|   5.0| 957546755|  3.545177|
+|  3411|    471|Hudsucker Proxy, ...|      Comedy|Romance|   2.0| 967583402| 3.1709566|
+|  1294|    471|Hudsucker Proxy, ...|      Comedy|Romance|   4.0| 974874755| 3.8960104|
+|  2684|    471|Hudsucker Proxy, ...|      Comedy|Romance|   5.0| 974490826| 3.6437457|
+|  5841|    471|Hudsucker Proxy, ...|      Comedy|Romance|   3.0| 957821906| 4.3905435|
++------+-------+--------------------+--------------------+------+----------+----------+
+only showing top 20 rows
+
+Evaluating model...
+Root-mean-square error of the ALS model = 0.875694068541735
+Generating Top 5 movie recommendations for each user...
++------+--------------------+
+|userId|     recommendations|
++------+--------------------+
+|  1580|[[729, 9.890911],...|
+|  4900|[[729, 13.361579]...|
+|  5300|[[2562, 7.5118937...|
+|   471|[[729, 9.4095], [...|
+|  1591|[[729, 8.506428],...|
+|  4101|[[2063, 10.447818...|
+|  1342|[[3382, 7.030708]...|
+|  2122|[[2342, 7.5985017...|
+|  2142|[[729, 7.860894],...|
+|   463|[[2342, 6.2763095...|
+|   833|[[729, 11.479049]...|
+|  5803|[[682, 10.712517]...|
+|  3794|[[3382, 6.6873913...|
+|  1645|[[729, 11.813101]...|
+|  3175|[[3905, 7.702751]...|
+|  4935|[[3905, 6.1710796...|
+|   496|[[526, 9.289138],...|
+|  2366|[[887, 7.9669943]...|
+|  2866|[[980, 11.797855]...|
+|  5156|[[557, 7.324148],...|
++------+--------------------+
+only showing top 20 rows
+

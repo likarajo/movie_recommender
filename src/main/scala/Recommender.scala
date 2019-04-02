@@ -4,11 +4,17 @@
   *  output location - can be on S3 or cluster
   *************************************************************/
 
+import java.io.{BufferedWriter, ByteArrayOutputStream, File, FileWriter}
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+import org.apache.spark.ml.evaluation.RegressionEvaluator
+import org.apache.spark.ml.recommendation.ALS
 import org.apache.spark.sql.SparkSession
 
 // Declare record structure as a class
 case class Rating(userId: Int, movieId: Int, rating: Float, timestamp: Long)
-case class Movie(movieId: Int, movieName: String, genre: String)
+case class Movie(mId: Int, movieName: String, genre: String)
 
 object Recommender {
 
@@ -16,16 +22,26 @@ object Recommender {
 
     //if (args.length == 0) {println("i need two two parameters ")}
 
+    val debug = false
+    val file = true
+
     val spark = SparkSession
       .builder
       .appName("Movie Recommender")
       .master("local") // remove this when running in a Spark cluster
       .getOrCreate()
 
-    println("Connected to Spark")
+    println("Connected to Spark. Running...")
 
     // Display only ERROR logs in terminal
     spark.sparkContext.setLogLevel("ERROR")
+
+    // Get current time
+    val xt = LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYMMddHHmmss"))
+
+    // Specify output file
+    val filename = "MovieRecommendation_" + xt + ".txt"
+    val outFile = new BufferedWriter(new FileWriter(filename))
 
     // Specify data file(s)
     val ratingsFile = "movielens/ratings.dat"
@@ -46,7 +62,7 @@ object Recommender {
       .map(parseRating)
       .toDF()
 
-    ratings.show()
+    //ratings.show()
 
     // Create the movies dataframe using the Movie data structure
 
@@ -61,14 +77,25 @@ object Recommender {
       .map(parseMovie)
       .toDF()
 
-    movies.show()
+    //movies.show()
 
-    /*
+    if(debug) println("Data read completed")
+    if(file) outFile.append("Data read completed\n")
 
-    println("Data read completed")
+    val df = ratings.join(movies, $"movieId" === $"mId")
+      .select("userId", "movieId", "movieName", "genre", "rating", "timestamp")
+
+    if(debug) df.show()
+    if(file){
+      val outCapture = new ByteArrayOutputStream()
+      Console.withOut(outCapture) {df.show()}
+      val result = new String(outCapture.toByteArray)
+      outFile.append(result)
+    }
+
 
     // Split data into training and testing set
-    val Array(train, test) = ratings.randomSplit(Array(0.9, 0.1))
+    val Array(train, test) = df.randomSplit(Array(0.9, 0.1))
 
     // Set Algorithm
     val als = new ALS()
@@ -79,7 +106,8 @@ object Recommender {
       .setRegParam(0.01)
       .setRank(5)
 
-    println("Training model with train set...")
+    if(debug) println("Training model with train set...")
+    if(file) outFile.append("Training model with train set...\n")
 
     //Create Model with train data
     val model = als.fit(train)
@@ -87,14 +115,22 @@ object Recommender {
     // Drop any rows in the DataFrame of predictions that contain NaN values
     model.setColdStartStrategy("drop")
 
-    println("Model trained")
+    if(debug) println("Model trained")
+    if(file) outFile.append("Model trained\n")
 
-    println("Predicting using test set...")
+    if(debug) println("Predicting using test set...")
+    if(file) outFile.append("Predicting using test set...\n")
 
     // Predict using test data
     val predictions = model.transform(test)
 
-    predictions.show()
+    if(debug) predictions.show()
+    if(file){
+      val outCapture = new ByteArrayOutputStream()
+      Console.withOut(outCapture) {predictions.show()}
+      val result = new String(outCapture.toByteArray)
+      outFile.append(result)
+    }
 
     // Model evaluation
     val evaluator = new RegressionEvaluator()
@@ -102,33 +138,41 @@ object Recommender {
       .setPredictionCol("prediction")
       .setMetricName("rmse")
 
-    println("Evaluating model...")
+    if(debug) println("Evaluating model...")
+    if(file) outFile.append("Evaluating model...\n")
 
     val rmse = evaluator.evaluate(predictions)
-    println(s"Root-mean-square error = $rmse")
+    println(s"Root-mean-square error of the ALS model = $rmse")
+    if(file) outFile.append(s"Root-mean-square error of the ALS model = $rmse\n")
 
     // Generate top 5 movie recommendations for each user
     println("Generating Top 5 movie recommendations for each user...")
+    if(file) outFile.append("Generating Top 5 movie recommendations for each user...\n")
     val userRecs = model.recommendForAllUsers(5)
-    userRecs.rdd.foreach(println)
-    userRecs.rdd.saveAsTextFile("output")
+
+    userRecs.toDF().show()
+    if(file){
+      val outCapture = new ByteArrayOutputStream()
+      Console.withOut(outCapture) {userRecs.toDF().show()}
+      val result = new String(outCapture.toByteArray)
+      outFile.append(result)
+    }
 
     /*
     // Generate top 5 user recommendations for each movie
     println("Generating Top 5 user recommendations for each movie...")
     val movieRecs = model.recommendForAllItems(5)
-    movieRecs.rdd.foreach(println)
 
     // Generate top 5 movie recommendations for a specified set of users
     println("Generating Top 5 movie recommendations for a specified set of users")
-    userRecs.rdd.repartition(1).saveAsTextFile("output")
-    //userRecs.rdd.repartition(1).foreach(println)
-    println("Saved to output")
+    val top5recs = userRecs.rdd.repartition(1)
     */
 
     spark.stop()
     println("Disconnected from Spark")
-    */
+
+    outFile.close()
+    if(!file) new File(filename).delete()
 
   }
 
