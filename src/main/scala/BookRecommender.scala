@@ -9,31 +9,42 @@ import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.ml.recommendation.ALS
 import org.apache.spark.sql.SparkSession
 
-// Declare record structure as a class
-case class Rating(userId: Int, movieId: Int, rating: Float, timestamp: Long)
-case class Movie(mId: Int, movieName: String, genre: String)
-
 object BookRecommender {
-  def main(args: Array[String]): Unit = {
 
-    if (args.length == 0) {
-      println("i need two two parameters ")
-    }
+  def main(args: Array[String]){
+
+    //if (args.length == 0) {println("i need two two parameters ")}
 
     val spark = SparkSession
-      .builder()
-      .appName("BookReco1")
+      .builder
+      .appName("Book Recommender")
+      .master("local") // remove this when running in a Spark cluster
       .getOrCreate()
 
+    println("Connected to Spark. Running...")
+
+    // Display only ERROR logs in terminal
+    spark.sparkContext.setLogLevel("ERROR")
+
+    val ratingsFile = "data/informatik/BX-Book-Ratings.csv"
 
     val ratings = spark.read.option("header", "true")
       .option("inferSchema", "true")
       .option("delimiter", ";")
-      .csv(args(0))
+      .csv(ratingsFile)
 
-    val indexer = new StringIndexer().setInputCol("ISBN").setOutputCol("ISBNIndex")
-    val indexed = indexer.fit(ratings).transform(ratings)
+    ratings.show()
+
+    val indexer = new StringIndexer()
+      .setInputCol("ISBN")
+      .setOutputCol("ISBNIndex")
+
+    val indexed = indexer
+      .fit(ratings)
+      .transform(ratings)
+
     val Array(training, test) = indexed.randomSplit(Array(0.8, 0.2))
+
     val als = new ALS()
       .setMaxIter(5)
       .setRegParam(0.01)
@@ -44,18 +55,27 @@ object BookRecommender {
 
     val model = als.fit(training)
     model.setColdStartStrategy("drop")
+
     val predictions = model.transform(test)
+
     val evaluator = new RegressionEvaluator()
       .setMetricName("rmse")
       .setLabelCol("Book-Rating")
       .setPredictionCol("prediction")
+
     val rmse = evaluator.evaluate(predictions)
     println(s"Root-mean-square error = $rmse")
 
-    // Generate top 10 movie recommendations for each user
+    // Generate top 10 nook recommendations for each user
     val userRecs = model.recommendForAllUsers(10)
-    // Generate top 10 user recommendations for each movie
-    val movieRecs = model.recommendForAllItems(10)
+    userRecs.toDF.show()
+
+    // Generate top 10 user recommendations for each book
+    val bookRecs = model.recommendForAllItems(10)
+    bookRecs.toDF.show()
+
+    spark.stop()
+    println("Disconnected from Spark")
 
   }
 }
